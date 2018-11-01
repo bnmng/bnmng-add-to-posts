@@ -13,81 +13,11 @@ function techo ( $toecho ) {
 	echo '<pre>', $toecho,  "\n", '</pre>';
 }
 
-function old_bnmng_add_to_posts($content) {
-
-	$post = get_post();
-	$option_name = 'bnmng_add_to_posts';
-	$options = get_option( $option_name );
-	$add_to_beginning = '';
-	$add_to_end = '';
-	$qty_instances = count( $options['instances'] );
-	for( $each_instance = 0; $each_instance < $qty_instances; $each_instance++ ) {
-
-		$do_this = false;
-
-		if( !$options['instances'][ $each_instance ]['singular'] || is_singular() ) {
-			$do_this = true;
-		}
-
-		if( $do_this ) {
-			$do_this = false;
-
-			if( in_array( $post->post_type, $options['instances'][ $each_instance ]['post_types'] ) ) {
-				$do_this = true;
-			}
-		}
-		
-		if( $do_this ) {
-			$do_this = false;
-
-			if( !is_object_in_taxonomy( $post->post_type, 'category' ) ) {
-				$do_this = true;
-			} else {
-				$post_category_ids = array_column( get_the_category(), 'term_id' );
-				$opt_categories = $options['instances'][ $each_instance ]['categories'];
-				$do_this = true;
-				foreach( $opt_categories as $opt_category ) {
-					$do_this = false;
-					if( in_array( $opt_category, $post_category_ids ) ) {
-						$do_this = true;
-					} else {
-						break;
-					}
-				}
-			}
-		}
-
-		if( $do_this ) {
-			$do_this = false;
-
-			if( !post_type_supports( $post->post_type, 'author' ) ) {
-				$do_this = true;
-			} else {
-				if( !$options['instances'][ $each_instance ]['author'] ) {
-					$do_this = true;
-				} else {
-					if( $options['instances'][ $each_instance ]['author'] == get_the_author_meta( 'ID' ) ) {
-						$do_this = true;
-					}
-				}
-			}
-		}
-
-		if( $do_this ) {
-			$add_to_beginning .= ( stripslashes( $options['instances'][ $each_instance ][ 'at_beginning' ] ) );
-			$add_to_end = ( stripslashes( $options['instances'][ $each_instance ][ 'at_end' ] ) ) . $add_to_end;
-		}
-
-	}
-	$content = $add_to_beginning . $content . $add_to_end;
-	return $content;
-}
 
 function bnmng_add_to_posts($content) {
 
 	$post = get_post();
 	
-	error_log ( 'looking at post ' . $post->title );
 	$post_category_ids = array_column( get_the_category(), 'term_id' );
 
 	$option_name = 'bnmng_add_to_posts';
@@ -97,49 +27,34 @@ function bnmng_add_to_posts($content) {
 	$qty_instances = count( $options['instances'] );
 	for( $each_instance = 0; $each_instance < $qty_instances; $each_instance++ ) {
 
-		error_log ( 'looking at instance ' . $each_instance );
+		if( $options['instances'][ $each_instance ]['singular'] && !is_singular() ) {
+			continue;
+		}
 
-		do {
-
-			if( $options['instances'][ $each_instance ]['singular'] && !is_singular() ) {
-				$do_this = false;
-				error_log( 'broke at singular' );
-				break;
-				
+		if( !in_array( $post->post_type, $options['instances'][ $each_instance ]['post_types'] ) ) {
+			continue;
+		}
+	
+		if( is_object_in_taxonomy( $post->post_type, 'category' ) ) {
+			$opt_categories = $options['instances'][ $each_instance ]['categories'];
+			foreach( $opt_categories as $opt_category ) {
+				if( !in_array( $opt_category, $post_category_ids ) ) {
+					continue 2;
+				}
 			}
-
-			if( !in_array( $post->post_type, $options['instances'][ $each_instance ]['post_types'] ) ) {
-				$do_this = false;
-				error_log( 'broke at post type' );
-				break;
-			}
+		}
 		
-			if( is_object_in_taxonomy( $post->post_type, 'category' ) ) {
-				$opt_categories = $options['instances'][ $each_instance ]['categories'];
-				foreach( $opt_categories as $opt_category ) {
-					if( !in_array( $opt_category, $post_category_ids ) ) {
-						$do_this = false;
-						error_log( 'broke at post categories' );
-						break 2;
-					}
+		if( post_type_supports( $post->post_type, 'author' ) ) {
+			if( $options['instances'][ $each_instance ]['author'] > 0 ) {
+				if( !($options['instances'][ $each_instance ]['author'] == get_the_author_meta( 'ID' ) ) ) {
+					continue;
 				}
 			}
-			
-			if( post_type_supports( $post->post_type, 'author' ) ) {
-				if( $options['instances'][ $each_instance ]['author'] > 0 ) {
-					if( !($options['instances'][ $each_instance ]['author'] == get_the_author_meta( 'ID' ) ) ) {
-						$do_this = false;
-						error_log ( 'broke at author' );
-						break;
-					}
-				}
+		}
 
-			}
+		$add_to_beginning .= ( stripslashes( $options['instances'][ $each_instance ][ 'at_beginning' ] ) );
+		$add_to_end = ( stripslashes( $options['instances'][ $each_instance ][ 'at_end' ] ) ) . $add_to_end;
 
-			$add_to_beginning .= ( stripslashes( $options['instances'][ $each_instance ][ 'at_beginning' ] ) );
-			$add_to_end = ( stripslashes( $options['instances'][ $each_instance ][ 'at_end' ] ) ) . $add_to_end;
-
-		} while( false );
 
 	}
 	$content = $add_to_beginning . $content . $add_to_end;
@@ -191,7 +106,43 @@ function bnmng_add_to_posts_options() {
 	$global_controlname_pat = $option_name . '[%1$s]';
 	$global_controlid_pat = $option_name . '_%1$s';
 
-	$all_categories = get_categories();
+	$source_categories = get_categories();
+	techo( 'source_categories=' . print_r( $source_categories, true ) );		
+
+	$all_categories = [];
+	$parent_category_ids = [];
+	$parent_category_ids[0] = 0;
+	$category_level=0;
+	$breakat=50;
+	$loop=0;
+	while( count( $source_categories ) ) {
+		techo ( 'top of while, level=' . $category_level . ' parent_category_id[' . $category_level . ']=' . $parent_category_ids[ $category_level ] );
+		if($loop>$breakat) { techo ( 'loop break' ); break; }
+		$loop++;
+		for( $each_source_category = 0; $each_source_category < count( $source_categories ); $each_source_category++ ) {
+			if( $source_categories[ $each_source_category ] ) {
+				techo ( '&nbsp;&nbsp;&nbsp;&nbsp;' . 'top of for, each=' . $each_source_category . ' level=' . $category_level . ' parent_category_id[' . $category_level . ']=' . $parent_category_ids[ $category_level ] );
+				if( $source_categories[ $each_source_category ]->parent == $parent_category_ids[ $category_level ] ) {
+					techo ( '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . 'each_source_category=' . $each_source_category . ' source_category[each_category]=' . $source_categories[ $each_source_category ]->name );
+					$source_categories[ $each_source_category ]->name = str_repeat( '-', $category_level ) . $source_categories[ $each_source_category ]->name;
+					$all_categories[] = $source_categories[ $each_source_category ];
+					$category_level++;
+					$parent_category_ids[ $category_level ] = $source_categories[ $each_source_category ]->term_id;
+					unset( $source_categories[ $each_source_category ] );
+					$source_categories = array_values( $source_categories );
+					continue 2;
+				}
+			}
+		}
+		if( $category_level > 0 ) {
+			$category_level--;
+		}
+	}
+	
+	techo( 'all_categories=' . print_r( $all_categories, true ) );		
+
+
+	
 	$all_authors = get_users();
 
 	$each_instance = 0;
@@ -222,6 +173,7 @@ function bnmng_add_to_posts_options() {
 	$options = get_option( $option_name );
 
 	$additional_post_types = explode(';',$options['additional_post_types']);
+
 	for( $each_post_type = 0; $each_post_type < count( $additional_post_types ); $each_post_type++  ) {
 		$additional_post_types[ $each_post_type ] = trim( $additional_post_types[ $each_post_type ] );
 		if ( $additional_post_types[ $each_post_type ] == '' ) {
@@ -391,6 +343,7 @@ function bnmng_admin_script() {
 					store["post_types_selected"].push( post_types_options[i].value );
 				}
 			}
+
 			store["categories_selected"] = [];
 			var categories_options = document.getElementById("' . $option_name . '_" + instance + "_categories").options;
 			for( i=0; i < categories_options.length; i++ ) {
@@ -399,6 +352,9 @@ function bnmng_admin_script() {
 				}
 			}
 
+
+			store["author"] = document.getElementById("' . $option_name . '_" + instance + "_author").checked;
+			store["singular"] = document.getElementById("' . $option_name . '_" + instance + "_singular").checked;
 			
 			store["at_beginning"] = document.getElementById("' . $option_name . '_" + instance + "_at_beginning").value;
 			store["at_end"] = document.getElementById("' . $option_name . '_" + instance + "_at_end").value;
@@ -410,50 +366,56 @@ function bnmng_admin_script() {
 			}
 
 			
-			var instance_options = document.getElementById("' . $option_name . '_" + instance + "_post_types").options;
-			var other_instance_options = document.getElementById("' . $option_name . '_" + other_instance + "_post_types").options;
-			for( i=0; i < instance_options.length; i++ ) {
-				instance_options[i].selected = false;;
-				for ( o=0; o < other_instance_options.length; o++) {
-					if( instance_options[i].value == other_instance_options[o].value && other_instance_options[o].selected ) {
-						instance_options[i].selected = true;
+			var instance_post_types_options = document.getElementById("' . $option_name . '_" + instance + "_post_types").options;
+			var other_instance_post_types_options = document.getElementById("' . $option_name . '_" + other_instance + "_post_types").options;
+			for( i=0; i < instance_post_types_options.length; i++ ) {
+				instance_post_types_options[i].selected = false;;
+				for ( o=0; o < other_instance_post_types_options.length; o++) {
+					if( instance_post_types_options[i].value == other_instance_post_types_options[o].value && other_instance_post_types_options[o].selected ) {
+						instance_post_types_options[i].selected = true;
 					}
 				}
 			}
-			var instance_options = document.getElementById("' . $option_name . '_" + instance + "_categories").options;
-			var other_instance_options = document.getElementById("' . $option_name . '_" + other_instance + "_categories").options;
-			for( i=0; i < instance_options.length; i++ ) {
-				instance_options[i].selected = false;;
-				for ( o=0; o < other_instance_options.length; o++) {
-					if( instance_options[i].value == other_instance_options[o].value && other_instance_options[o].selected ) {
-						instance_options[i].selected = true;
+			var instance_categories_options = document.getElementById("' . $option_name . '_" + instance + "_categories").options;
+			var other_instance_categories_options = document.getElementById("' . $option_name . '_" + other_instance + "_categories").options;
+			for( i=0; i < instance_categories_options.length; i++ ) {
+				instance_categories_options[i].selected = false;;
+				for ( o=0; o < other_instance_categories_options.length; o++) {
+					if( instance_categories_options[i].value == other_instance_categories_options[o].value && other_instance_categories_options[o].selected ) {
+						instance_categories_options[i].selected = true;
 					}
 				}
 			}
-			
+
+			document.getElementById("' . $option_name . '_" + instance + "_author").checked = document.getElementById("' . $option_name . '_" + other_instance + "_author").checked;
+			document.getElementById("' . $option_name . '_" + instance + "_singular").checked = document.getElementById("' . $option_name . '_" + other_instance + "_singular").checked;
+
 			document.getElementById("' . $option_name . '_" + instance + "_at_beginning").value = document.getElementById("' . $option_name . '_" + other_instance + "_at_beginning").value;
 			document.getElementById("' . $option_name . '_" + instance + "_at_end").value = document.getElementById("' . $option_name . '_" + other_instance + "_at_end").value;
 
 
-			var other_instance_options = document.getElementById("' . $option_name . '_" + other_instance + "_post_types").options;
-			for( o=0; o < other_instance_options.length; o++ ) {
-				other_instance_options[o].selected = false;
+			var other_instance_post_types_options = document.getElementById("' . $option_name . '_" + other_instance + "_post_types").options;
+			for( o=0; o < other_instance_post_types_options.length; o++ ) {
+				other_instance_post_types_options[o].selected = false;
 				for ( i=0; i < store["post_types_selected"].length; i++) {
-					if( other_instance_options[o].value == store["post_types_selected"][i] ) {
-						other_instance_options[o].selected = true;
+					if( other_instance_post_types_options[o].value == store["post_types_selected"][i] ) {
+						other_instance_post_types_options[o].selected = true;
 					}
 				}
 			}
 			
-			var other_instance_options = document.getElementById("' . $option_name . '_" + other_instance + "_categories").options;
-			for( o=0; o < other_instance_options.length; o++ ) {
-				other_instance_options[o].selected = false;
+			var other_instance_categories_options = document.getElementById("' . $option_name . '_" + other_instance + "_categories").options;
+			for( o=0; o < other_instance_categories_options.length; o++ ) {
+				other_instance_categories_options[o].selected = false;
 				for ( i=0; i < store["categories_selected"].length; i++) {
-					if( other_instance_options[o].value == store["categories_selected"][i] ) {
-						other_instance_options[o].selected = true;
+					if( other_instance_categories_options[o].value == store["categories_selected"][i] ) {
+						other_instance_categories_options[o].selected = true;
 					}
 				}
 			}
+
+			document.getElementById("' . $option_name . '_" + other_instance + "_author").checked = store["author"];
+			document.getElementById("' . $option_name . '_" + other_instance + "_singular").checked = store["singular"];
 
 			document.getElementById("' . $option_name . '_" + other_instance + "_at_beginning").value = store["at_beginning"];
 			document.getElementById("' . $option_name . '_" + other_instance + "_at_end").value = store["at_end"];
