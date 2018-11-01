@@ -9,10 +9,62 @@ Text Domain: bnmng-add-to-posts
 Licence: GPL2
 */
 
-function techo ( $toecho ) {
-	echo '<pre>', $toecho,  "\n", '</pre>';
+/*This is just for troubleshooting*/
+if( !function_exists( 'bnmng_echo' ) ) {
+function bnmng_echo ( $verb, $line='' ) {
+	echo '<pre>';
+	if ( $line > '' ) {
+		echo $line;
+	}
+	echo $verb,  "\n", '</pre>';
+}
 }
 
+if( !function_exists( 'bnmng_assign_category_lineage' ) ) {
+function bnmng_assign_category_lineage( $categories ) {
+
+	foreach( $categories as &$category ) {
+		if( $category->parent == 0 ) {
+			$category->lineage = $category->name . '[' . $category->term_id . ']';
+		} else {
+			$found_parent = false;
+			foreach( $categories as $find_parent ) {
+				if( $find_parent->term_id == $category->parent ) {
+					$found_parent = true;
+					break;
+				}
+			}
+			if( !$found_parent ) {
+				$category->lineage = $category->name . '[' . $category-term_id . ']';
+			}
+		}
+	}
+	unset ( $category );
+
+	$more_to_check = true;
+	while ( $more_to_check ) {
+		$more_to_check = false;
+		foreach( $categories as &$category ) {
+			if( !$category->lineage > '' ) {
+				$more_to_check = true;
+			} else {
+				foreach( $categories as &$find_child ) {
+					if( $find_child->parent == $category->term_id ) {
+						$find_child->lineage = $category->lineage . '_' . $find_child->name . '[' . $find_child->term_id . ']';
+						$find_child->prefix = $category->prefix . '-';
+					}
+				}
+			}
+		}
+		unset ( $category );
+	}
+
+	array_multisort( array_column( $categories, 'lineage' ), SORT_ASC, $categories );
+
+	return $categories;
+
+}
+}
 
 function bnmng_add_to_posts($content) {
 
@@ -105,44 +157,9 @@ function bnmng_add_to_posts_options() {
 	$controlid_pat = $option_name . '_%1$d_%2$s';
 	$global_controlname_pat = $option_name . '[%1$s]';
 	$global_controlid_pat = $option_name . '_%1$s';
-
-	$source_categories = get_categories();
-	techo( 'source_categories=' . print_r( $source_categories, true ) );		
-
-	$all_categories = [];
-	$parent_category_ids = [];
-	$parent_category_ids[0] = 0;
-	$category_level=0;
-	$breakat=50;
-	$loop=0;
-	while( count( $source_categories ) ) {
-		techo ( 'top of while, level=' . $category_level . ' parent_category_id[' . $category_level . ']=' . $parent_category_ids[ $category_level ] );
-		if($loop>$breakat) { techo ( 'loop break' ); break; }
-		$loop++;
-		for( $each_source_category = 0; $each_source_category < count( $source_categories ); $each_source_category++ ) {
-			if( $source_categories[ $each_source_category ] ) {
-				techo ( '&nbsp;&nbsp;&nbsp;&nbsp;' . 'top of for, each=' . $each_source_category . ' level=' . $category_level . ' parent_category_id[' . $category_level . ']=' . $parent_category_ids[ $category_level ] );
-				if( $source_categories[ $each_source_category ]->parent == $parent_category_ids[ $category_level ] ) {
-					techo ( '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . 'each_source_category=' . $each_source_category . ' source_category[each_category]=' . $source_categories[ $each_source_category ]->name );
-					$source_categories[ $each_source_category ]->name = str_repeat( '-', $category_level ) . $source_categories[ $each_source_category ]->name;
-					$all_categories[] = $source_categories[ $each_source_category ];
-					$category_level++;
-					$parent_category_ids[ $category_level ] = $source_categories[ $each_source_category ]->term_id;
-					unset( $source_categories[ $each_source_category ] );
-					$source_categories = array_values( $source_categories );
-					continue 2;
-				}
-			}
-		}
-		if( $category_level > 0 ) {
-			$category_level--;
-		}
-	}
 	
-	techo( 'all_categories=' . print_r( $all_categories, true ) );		
+	$all_categories = bnmng_assign_category_lineage( get_categories( array( 'hide_empty'=>0) ) );
 
-
-	
 	$all_authors = get_users();
 
 	$each_instance = 0;
@@ -225,7 +242,7 @@ function bnmng_add_to_posts_options() {
 			if( in_array( $category->term_id, $options['instances'][ $each_instance ]['categories'] ) ) {
 				$form_output .= 'selected="selected"';
 			}
-			$form_output .= '>' . $category->name . '</option>' . "\n";
+			$form_output .= '>' . $category->prefix .  $category->name . '</option>' . "\n";
 		}
 		$form_output .= '</select></div><div class="' . $text_domain . '-help">' . $categories_help . '</div></td></tr>' . "\n";
 
@@ -277,7 +294,7 @@ function bnmng_add_to_posts_options() {
 		if ( $category->term_id == '0' ) {
 			$form_output .= 'selected="selected"';
 		}
-		$form_output .= '>' . $category->name . '</option>' . "\n";
+		$form_output .= '>' . $category->prefix . $category->name . '</option>' . "\n";
 	}
 	$form_output .= '</select></div><div class="' . $text_domain . '-help">' . $categories_help . '</div></td></tr>' . "\n";
 
