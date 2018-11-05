@@ -1,145 +1,40 @@
-# Testing #
-## Test 1: Add text with default settings #
 
-Create a post (post of type post)  with the following parameters:
-* It is of the category, 'Uncategorized'
-* Give it the title 'BEOWULF 1-19'
-* Add to the content the text in the appendix section of this document under 'BEOWULF 1-19'
+Start with a blog that has the following categories
 
-Create an instance with the following parameters
-* Post Types = post
-* Singular view is checked
-* No categories are selected
-* No author is selected
-* Add to Beginning of Post = "** This site is for demonstrating the plugin [bnmng Add to Posts]  **"  
-* Add to End of Post = ""**  This is only a demonstration **"
+Letters
+-Consonents
+-Vowels
+Numbers
+-Integers
+--Whole Numbers
+Uncategorized
 
-View the the post loop.  Ensure the added text does not appear on the loop
+The dashes here denote heirarchy and are not part of the category names.
 
-View the post individually.  Ensure the following; 
+Delete any bnmng\_add_\to\_posts option from the wp\_options ( delete from wp\_optons where option\_name = "bnmng\_add\_to\_pots"; )
 
-* "** This site is for demonstrating the plugin [bnmng Add to Posts]  **"  appears at the top of the content
-* ""**  This is only a demonstration **"  appears at the bottom of the content
-  
-## Test 2: Add text with a certain category selected #
+The choice for post is highlighted.
 
-Ensure the post from Step 1 exists
+Choose 'none'
 
-Create a new user and name him "Albert"
+Click "Save Changes"
 
-Use the email address "Albert@bnmng.com"
+Check that an empty option has been created (  bnmng\_add\_to\_posts | a:0:{} )
 
-Give him/her Author privileges
+The choice for post is highlighted again.
 
-Give the password "Aelibnes#01"
+Click "Save Changes" again
 
-Log in as Albert and create a post with the following parameters:
+See that a new instance has been created.  Under than instance
 
-Create a post (post of type post) with the following parameters:
-* It is of the category, 'Relativity'
-* It's title is "Special Theory of Relativity Part1 Ch1 Paras 1-2"
-* The content is from the appendix section of this document, under the title above.
+	Move or Delete should only have two choices, "none", and "delete"
 
-Create an instance with the following parameters
-* Post Types = post
-* Singular view is checked
-* Thecategory Relativity is selected
-* No author is selected
-* Add to Beginning of Post = "** Beginning of Type Post, Singular, Relativity, Any Author,  **",  
-* Add to End of Post = ""** End of Type Post, Singular, Relativity, Any Author,  **",
+	Post type is "post"
 
-View the the post loop.  Ensure the added text does not appear on the loop
+	Singular View is checked
 
-View the uncategorized post individually.  Ensure the following; 
+	No categories are selected
 
-*  "** This site is for demonstrating the plugin [bnmng Add to Posts]  **"   appears at the top of the content
-* "**  This is only a demonstration **"  appears at the bottom of the content
-
-View the Einstein categorized post individually.  Ensure the following; 
-
-* "** This site is for demonstrating the plugin [bnmng Add to Posts]  **"    appears at the top of the content
-* "** Beginning of Type Post, Singular, Relativity Selected, Any Author,  **"  appears after the above text
-
-* "** End of Type Post, Singular, Relativity Selected, Any Author,  **"  appears at the bottom of the content
-*  ""**  This is only a demonstration **" appears after the above text
-
-## Test 3: Att text to posts of a certain author
-
-Create a new user and name him/her "Nicola"
-
-Use the email address "nicola@bnmng.com"
-
-Give him/her Author privileges
-
-Give the password "Ntiecsol#01"
-
-Log in as Nicola and create a post with the following parameters
-
-* It is of the category, 'Electricity'
-* It's title is "EXPERIMENTS WITH Alternate Currents of High Potential and High Frequency. - Paras 1-5"
-* The content is from the appendix section of this document, under the title above.
-
-View the uncategorized post individually.  Ensure the following; 
-
-*  "** This site is for demonstrating the plugin [bnmng Add to Posts]  **"   appears at the top of the content
-* "**  This is only a demonstration **"  appears at the bottom of the content
-
-View the Relativity categorized post individually.  Ensure the following; 
-
-* "** This site is for demonstrating the plugin [bnmng Add to Posts]  **"    appears at the top of the content
-* "** The theory of relativity revolutionized scientific thinking about the way objects relate to each other and to energy  **"  appears after the above text
-
-*  ""**  This is only a demonstration **" appears after the above text
+ 	Categories are listed in proper heirarchy
 
 
-View the Einstein categorized post individually.  Ensure the following; 
-
-* "** This site is for demonstrating the plugin [bnmng Add to Posts]  **"    appears at the top of the content
-* "** Beginning of Type Post, Singular, Relativity Selected, Any Author,  **"  appears after the above text
-
-* "** End of Type Post, Singular, Relativity Selected, Any Author,  **"  appears at the bottom of the content
-*  ""**  This is only a demonstration **" appears after the above text
-
-# Appendix #
-
-## Text to be Added ##
-
-### BEOWULF 1-19 ###
-
-Lo! the Spear-Dane's glory through splendid achievements
-The folk-kings' former fame we have heard of,
-How princes displayed then their prowess-in-battle.
-Oft Scyld the Scefing from scathers in numbers
-From many a people their mead-benches tore.
-Since first he found him friendless and wretched,
-The earl had had terror: comfort he got for it,
-Waxed 'neath the welkin, world-honor gained,
-Till all his neighbors o'er sea were compelled to
-Bow to his bidding and bring him their tribute:
-An excellent atheling! After was borne him
-A son and heir, young in his dwelling,
-Whom God-Father sent to solace the people.
-He had marked the misery malice had caused them,
-1That reaved of their rulers they wretched had erstwhile2
-Long been afflicted. The Lord, in requital,
-Wielder of Glory, with world-honor blessed him.
-Famed was Beowulf, far spread the glory
-Of Scyld's great son in the lands of the Danemen.
-
-### Special Theory of Relativity Part1 Ch1 Paras 1-2 ##
-
-In your schooldays most of you who read this book made acquaintance with the noble building of Euclid's geometry, and you remember - perhaps with more respect than love - the magnificent structure, on the lofty staircase of which you were chased about for uncounted hours by conscientious teachers. By reason of our past experience, you would certainly regard everyone with disdain who should pronounce even the most out-of-the-way proposition of this science to be untrue. But perhaps this feeling of proud certainty would leave you immediately if some one were to ask you: "What, then, do you mean by the assertion that these propositions are true?" Let us proceed to give this question a little consideration.
-
-Geometry sets out form certain conceptions such as "plane," "point," and "straight line," with which we are able to associate more or less definite ideas, and from certain simple propositions (axioms) which, in virtue of these ideas, we are inclined to accept as "true." Then, on the basis of a logical process, the justification of which we feel ourselves compelled to admit, all remaining propositions are shown to follow from those axioms, i.e. they are proven. A proposition is then correct ("true") when it has been derived in the recognised manner from the axioms. The question of "truth" of the individual geometrical propositions is thus reduced to one of the "truth" of the axioms. Now it has long been known that the last question is not only unanswerable by the methods of geometry, but that it is in itself entirely without meaning. We cannot ask whether it is true that only one straight line goes through two points. We can only say that Euclidean geometry deals with things called "straight lines," to each of which is ascribed the property of being uniquely determined by two points situated on it. The concept "true" does not tally with the assertions of pure geometry, because by the word "true" we are eventually in the habit of designating always the correspondence with a "real" object; geometry, however, is not concerned with the relation of the ideas involved in it to objects of experience, but only with the logical connection of these ideas among themselves.
-
-### EXPERIMENTS WITH Alternate Currents of High Potential and High Frequency. - First five paragraphs ###
-
-I cannot find words to express how deeply I feel the honor of addressing some of the foremost thinkers of the present time, and so many able scientific men, engineers and electricians, of the country greatest in scientific achievements.
-
-The results which I have the honor to present before such a gathering I cannot call my own. There are among you not a few who can lay better claim than myself on any feature of merit which this work may contain. I need not mention many names which are world-known—names of those among you who are recognized as the leaders in this enchanting science; but one, at least, I must mention—a name which could not be omitted in a demonstration of this kind. It is a name associated with the most beautiful invention ever made: it is Crookes!
-
-When I was at college, a good time ago, I read, in a translation (for then I was not familiar with your magnificent language), the description of his experiments on radiant matter. I read it only once in my life—that time—yet every detail about that charming work I can remember this day. Few are the books, let me say, which can make such an impression upon the mind of a student.
-
-But if, on the present occasion, I mention this name as one of many your institution can boast of, it is because I have more than one reason to do so. For what I have to tell you and to show you this evening concerns, in a large measure, that same vague world which Professor Crookes has so ably explored; and, more than this, when I trace back the mental process which led me to these advances—which even by myself cannot be considered trifling, since they are so appreciated by you—I believe that their real origin, that which started me to work in this direction, and brought me to them, after a long period of constant thought, was that fascinating little book which I read many years ago.
-
-And now that I have made a feeble effort to express my homage and acknowledge my indebtedness to him and others among you, I will make a second effort, which I hope you will not find so feeble as the first, to entertain you.
