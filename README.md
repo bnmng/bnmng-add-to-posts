@@ -1,33 +1,41 @@
-=== bnmng Add to Posts ===
+=== Akismet Anti-Spam ===
 Contributors: bnmng
-Tags: content, posts
-Tested up to: 3.4
-Stable tag: trunk
+Tags: text, content, 
+Requires at least: 4.0
+Tested up to: 5.0
+Stable tag: 1.0
 License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-bnmng Add to Posts is a plugin to add text to the beginning and end of a post's content while it displayed in singular view.
+Above and Below allows you to add content to be displayed above and below post content at display time.  
 
 == Description ==
 
-bnmng-add-to-posts is a WordPress plugin for adding text, including HTML and shortcodes, to the beginning and end of a post's content.  It does not alter the content of the post that is saved in the database.
+Above and Below is a plugin for WordPress that you can use to add text - including HTML and shortcode- to the beginning and end of posts' content at display time.  
+The content is not altered in the database.  
 
-The posts selected for adding text can be narrowed by type (post, page, etc) by category, and/or by author.  Multiple instances can be created, so certain text can be added to posts fitting one set of criteria and different text can be added to posts fitting a different profile.
+You can have different text for different posts. You can select posts to have text added by type, author, or taxonomy (ie category)
 
-HTML and shortcodes may be used.  Tags that are opened in the beginning may be closed at the end, and end of post content is added in reverse order for proper nesting.
-
-=== Use Cases ===
-
-You've installed Twin Picture's [Print-O-Matic](https://wordpress.org/plugins/print-o-matic/) and want to include their [print-me] shortcode on every post.
-
-You want to include a blurb about your authors on each post that the author writes
-
-You want to add formatting to certain categories
+You can also select pages and custom post types, although not all custom post types will work.
 
 == Installation ==
 
-1. Upload the `bnmng-add-to-posts` directory to the `/wp-content/plugins/` directory
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Find the `bnmng Add to Posts` menu item under `settings`
+Upload the plugin directory to your blog and activate it using your plugins menu
 
+== Help ==
 
+=== Create a New Instance ===
+
+An instance is a set of options which define the posts to which you want to add text and the text that you want to add.
+
+Create a new instance by choosing the type of post you want to add, which is a choice of "post", "page", or "other".  If "other", fill in the name of the post type.
+Normally, "post" is what you want to add.  "other" is explained in more detail below.
+
+Once you have selected a post type, click "Save Changes".  A new form will appear for the new instance you just created. 
+
+Fill out the criterea for selecting the posts to which you want to add text.  Also c
+
+== Changelog ==
+
+= 1.0 =
+
+Initial Release
